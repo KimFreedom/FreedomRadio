@@ -9,7 +9,8 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 {
     TRACE("RadioThread Start!\n");
     CFreedomRadioPlayer* pPlayer = (CFreedomRadioPlayer*)lpParam;
-	std::string url = pPlayer->GetRadioURL();
+	std::wstring wURL = pPlayer->GetRadioURL();
+	std::string url;
 	std::string strServerURL = "";
 	std::string method = "GET";
 	std::string arguments;
@@ -19,6 +20,8 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 	int nMetadataInterval = -1;
 	int nStoredDataSize = 0;
 	std::uint8_t* pMP3Buf = NULL;
+
+	url.assign(wURL.begin(), wURL.end());
 
     // Get stream server
     if (pPlayer->m_bIsPlayingRadio == false)
@@ -143,14 +146,16 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 			{
 				std::string headerName = line.substr(0, pos);
 				std::string headerValue = line.substr(pos + 1);
+				std::wstring wName, wValue;
+				wValue.assign(headerValue.begin(), headerValue.end());
 
 				if (headerName.compare("icy-name") == 0)
 				{
-					pPlayer->SetRadioSubName(headerValue);
+					pPlayer->SetRadioSubName(wValue);
 				}
 				else if (headerName.compare("icy-genre") == 0)
 				{
-					pPlayer->SetRadioGenre(headerValue);
+					pPlayer->SetRadioGenre(wValue);
 				}
 				else if (headerName.compare("icy-br") == 0)
 				{
@@ -172,8 +177,9 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 				}
 				else if (headerName.find("icy-notice") != std::string::npos)
 				{
-					std::string strNotice = pPlayer->GetRadioNotice();
-					strNotice += headerName.substr(10) + ". " + headerValue + "\r\n";
+					std::wstring strNotice = pPlayer->GetRadioNotice();
+					wName.assign(headerName.begin(), headerName.end());
+					strNotice += wName.substr(10) + L". " + wValue + L"\r\n";
 					pPlayer->SetRadioNotice(strNotice);
 				}
 			}
@@ -229,12 +235,14 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 					{
 						std::string metadataName = line.substr(0, iEqual);
 						std::string metadataValue = line.substr(iEqual + 1);
+						std::wstring wValue;
+						wValue.assign(metadataValue.begin(), metadataValue.end());
 
 						if (metadataName.compare("StreamTitle") == 0)
 						{
-							if (pPlayer->IsNewSong(metadataValue) == true)
+							if (pPlayer->IsNewSong(wValue) == true)
 							{
-								pPlayer->SetRadioNowPlaying(metadataValue);
+								pPlayer->SetRadioNowPlaying(wValue);
 								::PostMessage(pPlayer->m_hParentHandle, UM_SEND_RADIO_NOW_PLAYING, 0, 0);
 							}
 						}
@@ -290,12 +298,14 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 					{
 						std::string metadataName = strMetadata.substr(0, iEqual);
 						std::string metadataValue = strMetadata.substr(iEqual + 1);
+						std::wstring wValue;
+						wValue.assign(metadataValue.begin(), metadataValue.end());
 
 						if (metadataName.compare("StreamTitle") == 0)
 						{
-							if (pPlayer->IsNewSong(metadataValue) == true)
+							if (pPlayer->IsNewSong(wValue) == true)
 							{
-								pPlayer->SetRadioNowPlaying(metadataValue);
+								pPlayer->SetRadioNowPlaying(wValue);
 								::PostMessage(pPlayer->m_hParentHandle, UM_SEND_RADIO_NOW_PLAYING, 0, 0);
 							}
 						}
@@ -362,8 +372,8 @@ std::vector<std::string> TokenizeMetadata(std::vector<std::uint8_t> vtData, std:
 
 CFreedomRadioPlayer::CFreedomRadioPlayer()
 {
-    m_strName = "";
-    m_strURL = "";
+    m_strName = L"";
+    m_strURL = L"";
     m_hRadioThread = NULL;
     InitRadioInfo();
 }
@@ -377,11 +387,11 @@ CFreedomRadioPlayer::~CFreedomRadioPlayer()
 
 void CFreedomRadioPlayer::InitRadioInfo()
 {
-    m_strSubName = "";
-    m_strGenre = "";
+    m_strSubName = L"";
+    m_strGenre = L"";
     m_nBitRate = 0;
-    m_strNotice = "";
-    m_strNowPlaying = "";
+    m_strNotice = L"";
+    m_strNowPlaying = L"";
     m_bIsPlayingRadio = false;
 }
 
@@ -405,7 +415,7 @@ void CFreedomRadioPlayer::StopRadio()
 }
 
 
-bool CFreedomRadioPlayer::IsNewSong(std::string strSongTitle)
+bool CFreedomRadioPlayer::IsNewSong(std::wstring strSongTitle)
 {
 	return (m_strNowPlaying.compare(strSongTitle) != 0);
 }

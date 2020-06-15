@@ -5,13 +5,13 @@
 
 class CChannelManager
 {
+public:
     CChannelManager() {}
     virtual ~CChannelManager() {}
 
-public:
-    void AddChannel(std::string strName, std::string strURL);
+    void AddChannel(std::wstring strName, std::wstring strURL);
     int  CountChannelInfo();
-    void GetChannelInfo(int iChannel, std::string& strName, std::string& strURL);
+    void GetChannelInfo(int iChannel, std::wstring& strName, std::wstring& strURL);
     void ClearAllChannel();
 
 private:

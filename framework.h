@@ -47,14 +47,3 @@
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
 #endif
-
-
-CString GetProcessPath()
-{
-	TCHAR lpszDir[_MAX_PATH] = _T("");
-	GetModuleFileName(AfxGetInstanceHandle(), lpszDir, _MAX_PATH);
-	TCHAR* p = lpszDir + _tcslen(lpszDir);
-	while (*p != _T('\\') && p > lpszDir) p--;
-	*p = _T('\0');
-	return lpszDir;
-}

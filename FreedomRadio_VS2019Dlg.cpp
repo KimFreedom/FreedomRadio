@@ -69,7 +69,6 @@ BEGIN_MESSAGE_MAP(CFreedomRadioVS2019Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-    ON_BN_CLICKED(IDC_BTN_TEST_1, &CFreedomRadioVS2019Dlg::OnBnClickedBtnTest1)
 	ON_BN_CLICKED(IDC_BTN_PLAY, &CFreedomRadioVS2019Dlg::OnBnClickedBtnPlay)
 	ON_BN_CLICKED(IDC_BTN_STOP, &CFreedomRadioVS2019Dlg::OnBnClickedBtnStop)
 	ON_MESSAGE(UM_SEND_RADIO_SUB_INFO, &CFreedomRadioVS2019Dlg::OnSendRadioSubInfo)
@@ -182,100 +181,6 @@ LRESULT CFreedomRadioVS2019Dlg::OnSendRadioNowPlaying(WPARAM wParam, LPARAM lPar
 }
 
 
-
-void CFreedomRadioVS2019Dlg::OnBnClickedBtnTest1()
-{
-	//std::string url = "http://nonamepiano.saycast.com";
-	std::string url = "http://yes1959.saycast.com";
-	std::string method = "GET";
-	std::string arguments;
-	CString strMsg = _T("");
-	http::InternetProtocol protocol = http::InternetProtocol::V4;
-
-	try
-	{
-		http::Request request(url, protocol);
-		const http::Response response = request.send(method, arguments, {
-			//"Content-Type: application/x-www-form-urlencoded",
-				"Accept: */*",
-				"Icy-MetaData: 1",
-				"Connection: close",
-				"User-Agent: FreedomRadio/0.1",
-			});
-
-		if (response.status == http::Response::Ok)
-		{
-			for each (uint8_t i in response.body)
-			{
-				strMsg.Format(_T("%s %d"), strMsg, i);
-			}
-			AfxMessageBox(strMsg);
-
-			//             std::ofstream outfile(output, std::ofstream::binary);
-			//             outfile.write(reinterpret_cast<const char*>(response.body.data()),
-			//                 static_cast<std::streamsize>(response.body.size()));
-		}
-		else if (response.status == http::Response::Found)
-		{
-			std::string strServerURL = "";
-			for each (std::string strHeader in response.headers)
-			{
-				std::size_t found = strHeader.find("Location:");
-				if (found == std::string::npos)
-				{
-					continue;
-				}
-
-				strServerURL = strHeader.substr(10);
-				break;
-			}
-			if (strServerURL != "")
-			{
-				http::Request serverRequest(strServerURL, protocol);
-				const http::Response serverResponse = serverRequest.send_server_request(method, arguments, {
-					//"Content-Type: application/x-www-form-urlencoded",
-						"Accept: */*",
-						"Icy-MetaData: 1",
-						"Connection: close",
-						"User-Agent: FreedomRadio/0.1",
-					});
-
-				if (serverResponse.status == http::Response::Ok)
-				{
-					for each (std::string strHeader in serverResponse.headers)
-					{
-						strMsg.Format(_T("%s %s"), strMsg, strHeader);
-					}
-					AfxMessageBox(strMsg);
-				}
-				else
-				{
-					for each (uint8_t i in serverResponse.body)
-					{
-						strMsg.Format(_T("%s %d"), strMsg, i);
-					}
-					AfxMessageBox(strMsg);
-				}
-			}
-		}
-		else
-		{
-			for each (uint8_t i in response.body)
-			{
-				strMsg.Format(_T("%s %d"), strMsg, i);
-			}
-			AfxMessageBox(strMsg);
-		}
-	}
-	catch (const std::exception& e)
-	{
-		strMsg.Format(_T("Request failed, error: % s\n"), e.what());
-		AfxMessageBox(strMsg);
-		return;
-	}
-}
-
-
 void CFreedomRadioVS2019Dlg::InitControls()
 {
 	// Init radio list
@@ -344,8 +249,8 @@ void CFreedomRadioVS2019Dlg::PlayRadio()
 	// Set radio info
 	CString csRadioName = m_lstRadioList.GetItemText(iRadio, 0);
 	CString csRadioURL  = m_lstRadioList.GetItemText(iRadio, 1);
-	std::string strRadioName = ConvertCStringToString(csRadioName);
-	std::string strRadioURL  = ConvertCStringToString(csRadioURL);
+	std::wstring strRadioName = ConvertCStringToString(csRadioName);
+	std::wstring strRadioURL  = ConvertCStringToString(csRadioURL);
 
 	m_objRadioPlayer.SetRadioInfo(strRadioName, strRadioURL);
 
@@ -412,11 +317,14 @@ void CFreedomRadioVS2019Dlg::AddLog(CString csMsg)
 }
 
 
-std::string CFreedomRadioVS2019Dlg::ConvertCStringToString(CString csValue)
+std::wstring CFreedomRadioVS2019Dlg::ConvertCStringToString(CString csValue)
 {
+	/*
 	CT2CA pszConvertedAnsiString(csValue);
-	std::string strValue(pszConvertedAnsiString);
+	std::wstring strValue(pszConvertedAnsiString);
 	return strValue;
+	*/
+	return csValue.operator LPCWSTR();
 }
 
 
@@ -439,6 +347,7 @@ void CFreedomRadioVS2019Dlg::OpenChannelListFile()
 	}
 
 	OpenChannelList(strPathChannelList);
+	RefreshRadioList();
 }
 
 
@@ -446,10 +355,14 @@ void CFreedomRadioVS2019Dlg::OpenChannelList(CString strPathChannelList)
 {
 	m_objChannelManager.ClearAllChannel();
 
-	std::string strPath = ConvertCStringToString(strPathChannelList);
-	std::ifstream fileChannelList(strPath);
+	std::wstring strPath = ConvertCStringToString(strPathChannelList);
+	std::wifstream fileChannelList(strPath);
+	if (fileChannelList.is_open() == false)
+	{
+		return;
+	}
 	
-	std::string strLine;
+	std::wstring strLine, strName, strURL;
 	bool bIsOpenEntry = false;
 	while (std::getline(fileChannelList, strLine))
 	{
@@ -457,31 +370,55 @@ void CFreedomRadioVS2019Dlg::OpenChannelList(CString strPathChannelList)
 		strLine = strLine.erase(strLine.find_last_not_of(' ') + 1);
 
 		// ltrim
-		strLine = strLine.erase(0, strLine.find_last_not_of(' '));
+		strLine = strLine.erase(0, strLine.find_first_not_of(' '));
 
 		if (bIsOpenEntry == true)
 		{
-			if (strLine.find("<title>") == 0)
+			if (strLine.find(L"<title>") == 0)
 			{
-				;
+				int iTitleEnd = strLine.find_last_of('<');
+				strName = strLine.substr(7, iTitleEnd - 7);
 			}
-			else if (strLine.find("<ref href = ") == 0)
+			else if (strLine.find(L"<ref href") == 0)
 			{
-				;
+				int iURLStart = strLine.find_first_of('\"');
+				int iURLEnd = strLine.find_last_of('\"');
+				strURL = strLine.substr(iURLStart, iURLEnd - iURLStart);
 			}
-			else if (strLine == "</entry>")
+			else if (strLine == L"</entry>")
 			{
-				;
+				m_objChannelManager.AddChannel(strName, strURL);
 			}
 		}
 		else
 		{
-			;
+			if (strLine.find(L"<entry>") == 0)
+			{
+				bIsOpenEntry = true;
+				strName = L"";
+				strURL = L"";
+			}
 		}
 	}
 
 	fileChannelList.close();
-	
+}
+
+
+void CFreedomRadioVS2019Dlg::RefreshRadioList()
+{
+	m_lstRadioList.DeleteAllItems();
+
+	std::wstring strName, strURL;
+	int nCountChannel = m_objChannelManager.CountChannelInfo();
+	for (int iChannel = 0; iChannel < nCountChannel; iChannel++)
+	{
+		m_objChannelManager.GetChannelInfo(iChannel, strName, strURL);
+		CString csName(strName.c_str());
+		CString csURL(strURL.c_str());
+		m_lstRadioList.InsertItem(iChannel, csName);
+		m_lstRadioList.SetItemText(iChannel, 1, csURL);
+	}
 }
 
 
@@ -511,7 +448,7 @@ BOOL CFreedomRadioVS2019Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	switch (nMenu)
 	{
 	case ID_MAIN_OPENCHANNELLIST:
-		OpenChannelList();
+		OpenChannelListFile();
 		break;
 
 	case ID_MAIN_EXIT:
@@ -523,4 +460,15 @@ BOOL CFreedomRadioVS2019Dlg::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 
 	return CDialogEx::OnCommand(wParam, lParam);
+}
+
+
+CString CFreedomRadioVS2019Dlg::GetProcessPath()
+{
+	TCHAR lpszDir[_MAX_PATH] = _T("");
+	GetModuleFileName(AfxGetInstanceHandle(), lpszDir, _MAX_PATH);
+	TCHAR* p = lpszDir + _tcslen(lpszDir);
+	while (*p != _T('\\') && p > lpszDir) p--;
+	*p = _T('\0');
+	return lpszDir;
 }

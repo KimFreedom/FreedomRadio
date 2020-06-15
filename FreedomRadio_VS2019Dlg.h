@@ -19,7 +19,10 @@ public:
 
 	void OpenChannelListFile();
 	void OpenChannelList(CString strPathChannelList);
+	void RefreshRadioList();
 	void ProgramEnd();
+
+	CString GetProcessPath();
 
 // 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
@@ -37,7 +40,7 @@ private:
 	void RefreshRadioNowPlaying();
 	void AddLog(CString csMsg);
 
-	std::string ConvertCStringToString(CString csValue);
+	std::wstring ConvertCStringToString(CString csValue);
 	
 
 	CFreedomRadioPlayer m_objRadioPlayer;
@@ -54,7 +57,6 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-    afx_msg void OnBnClickedBtnTest1();
 	CListCtrl m_lstRadioList;
 	CListCtrl m_lstRadioInfo;
 	afx_msg void OnBnClickedBtnPlay();

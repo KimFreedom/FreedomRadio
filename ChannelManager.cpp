@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ChannelManager.h"
 
-void CChannelManager::AddChannel(std::string strName, std::string strURL)
+void CChannelManager::AddChannel(std::wstring strName, std::wstring strURL)
 {
     CRadioChannel objChannel(strName, strURL);
     m_vtChannel.push_back(objChannel);
@@ -14,7 +14,7 @@ int CChannelManager::CountChannelInfo()
 }
 
 
-void CChannelManager::GetChannelInfo(int iChannel, std::string& strName, std::string& strURL)
+void CChannelManager::GetChannelInfo(int iChannel, std::wstring& strName, std::wstring& strURL)
 {
     if ((iChannel < 0) || (iChannel >= CountChannelInfo()))
     {
