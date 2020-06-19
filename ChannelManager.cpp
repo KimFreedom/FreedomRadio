@@ -14,14 +14,26 @@ int CChannelManager::CountChannelInfo()
 }
 
 
-void CChannelManager::GetChannelInfo(int iChannel, std::wstring& strName, std::wstring& strURL)
+CRadioChannel *CChannelManager::GetChannelInfo(int iChannel)
+{
+    if ((iChannel < 0) || (iChannel >= CountChannelInfo()))
+    {
+        return NULL;
+    }
+
+    return &m_vtChannel[iChannel];
+}
+
+
+void CChannelManager::SetNowPlaying(int iChannel, std::wstring strArtist, std::wstring strTitle)
 {
     if ((iChannel < 0) || (iChannel >= CountChannelInfo()))
     {
         return;
     }
-    strName = m_vtChannel[iChannel].GetName();
-    strURL  = m_vtChannel[iChannel].GetURL();
+
+    m_vtChannel[iChannel].SetNowPlayingArtist(strArtist);
+    m_vtChannel[iChannel].SetNowPlayingTitle(strTitle);
 }
 
 

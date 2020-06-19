@@ -15,6 +15,7 @@
 #define IDC_LST_RADIO_INFO              1004
 #define IDC_EDT_LOG                     1005
 #define IDC_CUSTOM1                     1006
+#define IDC_CUSTOM_RADIO_CHANNEL_PANEL  1006
 #define ID_MAIN_OPENCHANNELLIST         32771
 #define ID_MAIN_EXIT                    32772
 

@@ -63,6 +63,7 @@ void CFreedomRadioVS2019Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LST_RADIO_LIST, m_lstRadioList);
 	DDX_Control(pDX, IDC_LST_RADIO_INFO, m_lstRadioInfo);
 	DDX_Control(pDX, IDC_EDT_LOG, m_edtLog);
+	DDX_Control(pDX, IDC_CUSTOM_RADIO_CHANNEL_PANEL, m_wndRadioChannelPanel);
 }
 
 BEGIN_MESSAGE_MAP(CFreedomRadioVS2019Dlg, CDialogEx)
@@ -334,7 +335,7 @@ void CFreedomRadioVS2019Dlg::OpenChannelListFile()
 	CString strPathProcess = GetProcessPath();
 
 	dlgOpen.GetOFN().lpstrInitialDir = strPathProcess;
-	int nResult = dlgOpen.DoModal();
+	INT_PTR nResult = dlgOpen.DoModal();
 	if (nResult == IDCANCEL)
 	{
 		return;
@@ -376,13 +377,13 @@ void CFreedomRadioVS2019Dlg::OpenChannelList(CString strPathChannelList)
 		{
 			if (strLine.find(L"<title>") == 0)
 			{
-				int iTitleEnd = strLine.find_last_of('<');
+				size_t iTitleEnd = strLine.find_last_of('<');
 				strName = strLine.substr(7, iTitleEnd - 7);
 			}
 			else if (strLine.find(L"<ref href") == 0)
 			{
-				int iURLStart = strLine.find_first_of('\"');
-				int iURLEnd = strLine.find_last_of('\"');
+				size_t iURLStart = strLine.find_first_of('\"');
+				size_t iURLEnd = strLine.find_last_of('\"');
 				strURL = strLine.substr(iURLStart, iURLEnd - iURLStart);
 			}
 			else if (strLine == L"</entry>")
@@ -409,13 +410,12 @@ void CFreedomRadioVS2019Dlg::RefreshRadioList()
 {
 	m_lstRadioList.DeleteAllItems();
 
-	std::wstring strName, strURL;
 	int nCountChannel = m_objChannelManager.CountChannelInfo();
 	for (int iChannel = 0; iChannel < nCountChannel; iChannel++)
 	{
-		m_objChannelManager.GetChannelInfo(iChannel, strName, strURL);
-		CString csName(strName.c_str());
-		CString csURL(strURL.c_str());
+		CRadioChannel *pChannel = m_objChannelManager.GetChannelInfo(iChannel);
+		CString csName(pChannel->GetName().c_str());
+		CString csURL(pChannel->GetURL().c_str());
 		m_lstRadioList.InsertItem(iChannel, csName);
 		m_lstRadioList.SetItemText(iChannel, 1, csURL);
 	}

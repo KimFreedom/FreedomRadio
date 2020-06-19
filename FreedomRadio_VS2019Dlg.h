@@ -5,6 +5,7 @@
 #pragma once
 #include "FreedomRadioPlayer.h"
 #include "ChannelManager.h"
+#include "RadioChannelPanelWnd.h"
 
 
 // CFreedomRadioVS2019Dlg 대화 상자
@@ -43,8 +44,10 @@ private:
 	std::wstring ConvertCStringToString(CString csValue);
 	
 
-	CFreedomRadioPlayer m_objRadioPlayer;
-	CChannelManager     m_objChannelManager;
+	CFreedomRadioPlayer		m_objRadioPlayer;
+	CChannelManager			m_objChannelManager;
+	CRadioChannelPanelWnd	m_wndRadioChannelPanel;
+
 
 // 구현입니다.
 protected:

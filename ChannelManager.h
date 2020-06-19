@@ -11,7 +11,8 @@ public:
 
     void AddChannel(std::wstring strName, std::wstring strURL);
     int  CountChannelInfo();
-    void GetChannelInfo(int iChannel, std::wstring& strName, std::wstring& strURL);
+    CRadioChannel *GetChannelInfo(int iChannel);
+    void SetNowPlaying(int iChannel, std::wstring strArtist, std::wstring strTitle);
     void ClearAllChannel();
 
 private:

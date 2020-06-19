@@ -45,6 +45,12 @@
     <ClInclude Include="ChannelManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="RadioChannelPanelWnd.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RadioChannelView.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FreedomRadio_VS2019.cpp">
@@ -63,6 +69,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ChannelManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="RadioChannelPanelWnd.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="RadioChannelView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
