@@ -4,12 +4,34 @@
 CRadioChannelPanelWnd::CRadioChannelPanelWnd()
 {
     RegisterWindowClass();
+    //InitControl();
 }
 
 
 CRadioChannelPanelWnd::~CRadioChannelPanelWnd()
 {
     ;
+}
+
+
+void CRadioChannelPanelWnd::InitControl()
+{
+    for (int i = 0; i < 3; i++)
+    {
+        const int LEFT_POS = ((CHANNEL_MARGIN + CHANNEL_WIDTH) * i) + CHANNEL_MARGIN;
+
+        //BOOL bResult = m_pChannelView[i].Create(NULL, _T(""), WS_BORDER, CRect(LEFT_POS, CHANNEL_MARGIN, LEFT_POS + CHANNEL_WIDTH, CHANNEL_MARGIN + CHANNEL_HEIGHT), this, 10000 + i);
+        BOOL bResult = m_pChannelView[i].Create(CRADIOCHANNELVIEW_CLASSNAME, _T(""), WS_BORDER, 
+            CRect(LEFT_POS, CHANNEL_MARGIN, LEFT_POS + CHANNEL_WIDTH, CHANNEL_MARGIN + CHANNEL_HEIGHT), this, 10000 + i);
+        m_pChannelView[i].EnableWindow(TRUE);
+        m_pChannelView[i].ShowWindow(SW_SHOW);
+
+        /*
+        CRadioChannelView objChannelView;
+        objChannelView.Create(NULL, _T(""), WS_BORDER, CRect(LEFT_POS, CHANNEL_MARGIN, LEFT_POS + CHANNEL_WIDTH, CHANNEL_MARGIN + CHANNEL_HEIGHT), this, 10000 + i);
+        m_vtChannelView.push_back(objChannelView);
+        */
+    }
 }
 
 
@@ -37,4 +59,11 @@ BOOL CRadioChannelPanelWnd::RegisterWindowClass()
         }
     }
     return TRUE;
+}
+
+BOOL CRadioChannelPanelWnd::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, CCreateContext* pContext)
+{
+    InitControl();
+
+    return CWnd::Create(lpszClassName, lpszWindowName, dwStyle, rect, pParentWnd, nID, pContext);
 }

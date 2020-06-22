@@ -225,6 +225,12 @@ void CFreedomRadioVS2019Dlg::InitControls()
 
 	// Now playing
 	m_lstRadioInfo.InsertItem(4, _T("Now playing"));
+
+	////// Radio channel panel
+	CRect rcRadioChannelPanel;
+	GetDlgItem(IDC_CUSTOM_RADIO_CHANNEL_PANEL)->GetWindowRect(rcRadioChannelPanel);
+	m_wndRadioChannelPanel.Create(CRADIOCHANNELPANELWND_CLASSNAME, _T(""), WS_CHILD | WS_VISIBLE | WS_BORDER, rcRadioChannelPanel, this, 11000);
+
 }
 
 void CFreedomRadioVS2019Dlg::OnBnClickedBtnPlay()
