@@ -63,7 +63,7 @@ void CFreedomRadioVS2019Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LST_RADIO_LIST, m_lstRadioList);
 	DDX_Control(pDX, IDC_LST_RADIO_INFO, m_lstRadioInfo);
 	DDX_Control(pDX, IDC_EDT_LOG, m_edtLog);
-	DDX_Control(pDX, IDC_CUSTOM_RADIO_CHANNEL_PANEL, m_wndRadioChannelPanel);
+	//DDX_Control(pDX, IDC_CUSTOM_RADIO_CHANNEL_PANEL, m_wndRadioChannelPanel);
 }
 
 BEGIN_MESSAGE_MAP(CFreedomRadioVS2019Dlg, CDialogEx)
@@ -228,9 +228,10 @@ void CFreedomRadioVS2019Dlg::InitControls()
 
 	////// Radio channel panel
 	CRect rcRadioChannelPanel;
-	GetDlgItem(IDC_CUSTOM_RADIO_CHANNEL_PANEL)->GetWindowRect(rcRadioChannelPanel);
-	m_wndRadioChannelPanel.Create(CRADIOCHANNELPANELWND_CLASSNAME, _T(""), WS_CHILD | WS_VISIBLE | WS_BORDER, rcRadioChannelPanel, this, 11000);
-
+	GetDlgItem(IDC_STATIC_RADIO_CHANNEL_PANEL)->GetWindowRect(rcRadioChannelPanel);
+	ScreenToClient(rcRadioChannelPanel);
+	//m_wndRadioChannelPanel.Create(CRADIOCHANNELPANELWND_CLASSNAME, _T(""), WS_CHILD | WS_VISIBLE | WS_BORDER, rcRadioChannelPanel, this, 11000);
+	m_wndRadioChannelPanel.Create(rcRadioChannelPanel, this, 11000);
 }
 
 void CFreedomRadioVS2019Dlg::OnBnClickedBtnPlay()
