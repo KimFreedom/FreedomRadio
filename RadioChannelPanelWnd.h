@@ -15,11 +15,9 @@ public:
     BOOL Create(CRect rect, CWnd* pParent, UINT windowID);
 
     //std::vector<CRadioChannelView> m_vtChannelView;
-    CRadioChannelView m_pChannelView[3];
+    CRadioChannelView m_pChannelView[20];
 
 protected:
     BOOL RegisterWindowClass();
-//public:
-    //virtual BOOL Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, CCreateContext* pContext = NULL);
 };
 

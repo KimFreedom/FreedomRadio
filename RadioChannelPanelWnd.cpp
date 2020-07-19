@@ -42,14 +42,27 @@ CRadioChannelPanelWnd::~CRadioChannelPanelWnd()
 
 void CRadioChannelPanelWnd::InitControl()
 {
-    for (int i = 0; i < 3; i++)
+    CRect rcPanelWnd;
+    GetClientRect(&rcPanelWnd);
+    const int CHANNEL_WIDTH = (rcPanelWnd.Width() - (CHANNEL_MARGIN * 3)) / 2;
+    const int LEFT_CHANNEL_LEFT_POS = CHANNEL_MARGIN;
+    const int RIGHT_CHANNEL_LEFT_POS = (CHANNEL_MARGIN * 2) + CHANNEL_WIDTH;
+    for (int i = 0; i < 20; i++)
     {
-        const int LEFT_POS = ((CHANNEL_MARGIN + CHANNEL_WIDTH) * i) + CHANNEL_MARGIN;
+        CRect rcChannelView(0, ((CHANNEL_MARGIN + CHANNEL_HEIGHT) * (i / 2)) + CHANNEL_MARGIN, 
+            0, ((CHANNEL_MARGIN + CHANNEL_HEIGHT) * (i / 2)) + CHANNEL_MARGIN + CHANNEL_HEIGHT);
+        if ((i % 2) == 0)
+        {
+            rcChannelView.left  = LEFT_CHANNEL_LEFT_POS;
+            rcChannelView.right = LEFT_CHANNEL_LEFT_POS + CHANNEL_WIDTH;
+        }
+        else
+        {
+            rcChannelView.left = LEFT_CHANNEL_LEFT_POS + CHANNEL_WIDTH + CHANNEL_MARGIN;
+            rcChannelView.right = rcPanelWnd.right - CHANNEL_MARGIN;
+        }
 
-        //BOOL bResult = m_pChannelView[i].Create(NULL, _T(""), WS_BORDER, CRect(LEFT_POS, CHANNEL_MARGIN, LEFT_POS + CHANNEL_WIDTH, CHANNEL_MARGIN + CHANNEL_HEIGHT), this, 10000 + i);
-        
-        BOOL bResult = m_pChannelView[i].Create(CRADIOCHANNELVIEW_CLASSNAME, _T(""), WS_BORDER, 
-            CRect(LEFT_POS, CHANNEL_MARGIN, LEFT_POS + CHANNEL_WIDTH, CHANNEL_MARGIN + CHANNEL_HEIGHT), this, 10000 + i);
+        BOOL bResult = m_pChannelView[i].Create(rcChannelView, this, 10000 + i);
         m_pChannelView[i].EnableWindow(TRUE);
         m_pChannelView[i].ShowWindow(SW_SHOW);
         

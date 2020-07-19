@@ -17,6 +17,7 @@ public:
 protected:
     BOOL RegisterWindowClass();
 public:
-    virtual BOOL Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, CCreateContext* pContext = NULL);
+    BOOL Create(long windowStyle, CRect rect, CWnd* pParent, UINT windowID);
+    BOOL Create(CRect rect, CWnd* pParent, UINT windowID);
 };
 
