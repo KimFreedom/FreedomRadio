@@ -25,6 +25,7 @@ ATOM RegisterClassRadioChannelView(HINSTANCE hInstance)
     return RegisterClassEx(&wcex);
 }
 
+
 CRadioChannelView::CRadioChannelView()
 {
     ;
@@ -34,23 +35,6 @@ CRadioChannelView::CRadioChannelView()
 CRadioChannelView::~CRadioChannelView()
 {
     ;
-}
-
-
-void CRadioChannelView::InitControl()
-{
-    BOOL bResult = FALSE;
-    const DWORD dwStaticStyle = WS_CHILD | WS_VISIBLE | SS_RIGHT;
-    const CRect rcName(CHANNEL_CONTROL_PADDING, CHANNEL_CONTROL_PADDING, 
-        CHANNEL_CONTROL_PADDING + CHANNEL_STATIC_WIDTH, CHANNEL_CONTROL_PADDING + CHANNEL_STATIC_HEIGHT);
-    const CRect rcArtist(CHANNEL_CONTROL_PADDING, rcName.bottom + CHANNEL_CONTROL_MARGIN,
-        rcName.right, rcName.bottom + CHANNEL_CONTROL_MARGIN + CHANNEL_STATIC_HEIGHT);
-    const CRect rcTitle(CHANNEL_CONTROL_PADDING, rcArtist.bottom + CHANNEL_CONTROL_MARGIN,
-        rcName.right, rcArtist.bottom + CHANNEL_CONTROL_MARGIN + CHANNEL_STATIC_HEIGHT);
-
-    bResult = m_stcChannelName.Create(_T("NAME"), dwStaticStyle, rcName, this);
-    bResult = m_stcChannelArtist.Create(_T("ARTIST"), dwStaticStyle, rcArtist, this);
-    bResult = m_stcChannelTitle.Create(_T("TITLE"), dwStaticStyle, rcTitle, this);
 }
 
 
@@ -104,3 +88,54 @@ BOOL CRadioChannelView::Create(CRect rect, CWnd* pParent, UINT windowID)
 
     return bRet;
 }
+
+
+void CRadioChannelView::InitControl()
+{
+    BOOL bResult = FALSE;
+    const DWORD dwKeyStyle = WS_CHILD | WS_VISIBLE | SS_RIGHT | WS_CLIPCHILDREN;
+    const DWORD dwValueStyle = WS_CHILD | WS_VISIBLE | SS_LEFT | WS_CLIPCHILDREN;
+    CRect rcChannelView;
+    GetClientRect(&rcChannelView);
+
+    const CRect rcNameKey(CHANNEL_CONTROL_PADDING, CHANNEL_CONTROL_PADDING, 
+        CHANNEL_CONTROL_PADDING + CHANNEL_STATIC_WIDTH, CHANNEL_CONTROL_PADDING + CHANNEL_STATIC_HEIGHT);
+    const CRect rcArtistKey(CHANNEL_CONTROL_PADDING, rcNameKey.bottom + CHANNEL_CONTROL_MARGIN,
+        rcNameKey.right, rcNameKey.bottom + CHANNEL_CONTROL_MARGIN + CHANNEL_STATIC_HEIGHT);
+    const CRect rcTitleKey(CHANNEL_CONTROL_PADDING, rcArtistKey.bottom + CHANNEL_CONTROL_MARGIN,
+        rcNameKey.right, rcArtistKey.bottom + CHANNEL_CONTROL_MARGIN + CHANNEL_STATIC_HEIGHT);
+
+    const CRect rcNameValue(rcNameKey.right + CHANNEL_CONTROL_PADDING, rcNameKey.top,
+        rcChannelView.right - CHANNEL_CONTROL_PADDING, rcNameKey.bottom);
+    const CRect rcArtistValue(rcNameValue.left, rcArtistKey.top,
+        rcNameValue.right, rcArtistKey.bottom);
+    const CRect rcTitleValue(rcNameValue.left, rcTitleKey.top,
+        rcNameValue.right, rcTitleKey.bottom);
+
+    bResult = m_stcNameKey.Create(_T("NAME"), dwKeyStyle, rcNameKey, this);
+    bResult = m_stcArtistKey.Create(_T("ARTIST"), dwKeyStyle, rcArtistKey, this);
+    bResult = m_stcTitleKey.Create(_T("TITLE"), dwKeyStyle, rcTitleKey, this);
+    bResult = m_stcNameValue.Create(_T("-"), dwValueStyle, rcNameValue, this);
+    bResult = m_stcArtistValue.Create(_T("-"), dwValueStyle, rcArtistValue, this);
+    bResult = m_stcTitleValue.Create(_T("-"), dwValueStyle, rcTitleValue, this);
+}
+
+
+void CRadioChannelView::SetName(CString strValue)
+{
+    m_stcNameValue.SetWindowText(strValue);
+}
+
+
+void CRadioChannelView::SetArtist(CString strValue)
+{
+    m_stcArtistValue.SetWindowText(strValue);
+}
+
+
+void CRadioChannelView::SetTitle(CString strValue)
+{
+    m_stcTitleValue.SetWindowText(strValue);
+}
+
+

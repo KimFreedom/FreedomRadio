@@ -9,10 +9,16 @@ public:
     virtual ~CRadioChannelView();
 
     void InitControl();
+    void SetName(CString strValue);
+    void SetArtist(CString strValue);
+    void SetTitle(CString strValue);
 
-    CStatic m_stcChannelName;
-    CStatic m_stcChannelArtist;
-    CStatic m_stcChannelTitle;
+    CStatic m_stcNameKey;
+    CStatic m_stcArtistKey;
+    CStatic m_stcTitleKey;
+    CStatic m_stcNameValue;
+    CStatic m_stcArtistValue;
+    CStatic m_stcTitleValue;
 
 protected:
     BOOL RegisterWindowClass();
