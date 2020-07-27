@@ -34,7 +34,8 @@ CRadioChannelView::CRadioChannelView()
 
 CRadioChannelView::~CRadioChannelView()
 {
-    ;
+    m_fontKey.DeleteObject();
+    m_fontValue.DeleteObject();
 }
 
 
@@ -98,6 +99,13 @@ void CRadioChannelView::InitControl()
     CRect rcChannelView;
     GetClientRect(&rcChannelView);
 
+    m_fontKey.CreateFont(15, 0, 0, 0, FW_BOLD, FALSE, FALSE, 0, DEFAULT_CHARSET,
+        OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+        DEFAULT_PITCH | FF_SWISS, _T("¸¼Àº °íµñ"));
+    m_fontValue.CreateFont(15, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, 0, DEFAULT_CHARSET,
+        OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+        DEFAULT_PITCH | FF_SWISS, _T("¸¼Àº °íµñ"));
+
     const CRect rcNameKey(CHANNEL_CONTROL_PADDING, CHANNEL_CONTROL_PADDING, 
         CHANNEL_CONTROL_PADDING + CHANNEL_STATIC_WIDTH, CHANNEL_CONTROL_PADDING + CHANNEL_STATIC_HEIGHT);
     const CRect rcArtistKey(CHANNEL_CONTROL_PADDING, rcNameKey.bottom + CHANNEL_CONTROL_MARGIN,
@@ -112,12 +120,19 @@ void CRadioChannelView::InitControl()
     const CRect rcTitleValue(rcNameValue.left, rcTitleKey.top,
         rcNameValue.right, rcTitleKey.bottom);
 
-    bResult = m_stcNameKey.Create(_T("NAME"), dwKeyStyle, rcNameKey, this);
-    bResult = m_stcArtistKey.Create(_T("ARTIST"), dwKeyStyle, rcArtistKey, this);
-    bResult = m_stcTitleKey.Create(_T("TITLE"), dwKeyStyle, rcTitleKey, this);
-    bResult = m_stcNameValue.Create(_T("-"), dwValueStyle, rcNameValue, this);
-    bResult = m_stcArtistValue.Create(_T("-"), dwValueStyle, rcArtistValue, this);
-    bResult = m_stcTitleValue.Create(_T("-"), dwValueStyle, rcTitleValue, this);
+    m_stcNameKey.Create(_T("NAME"), dwKeyStyle, rcNameKey, this);
+    m_stcArtistKey.Create(_T("ARTIST"), dwKeyStyle, rcArtistKey, this);
+    m_stcTitleKey.Create(_T("TITLE"), dwKeyStyle, rcTitleKey, this);
+    m_stcNameValue.Create(_T("-"), dwValueStyle, rcNameValue, this);
+    m_stcArtistValue.Create(_T("-"), dwValueStyle, rcArtistValue, this);
+    m_stcTitleValue.Create(_T("-"), dwValueStyle, rcTitleValue, this);
+
+    m_stcNameKey.SetFont(&m_fontKey, TRUE);
+    m_stcArtistKey.SetFont(&m_fontKey, TRUE);
+    m_stcTitleKey.SetFont(&m_fontKey, TRUE);
+    m_stcNameValue.SetFont(&m_fontValue, TRUE);
+    m_stcArtistValue.SetFont(&m_fontValue, TRUE);
+    m_stcTitleValue.SetFont(&m_fontValue, TRUE);
 }
 
 

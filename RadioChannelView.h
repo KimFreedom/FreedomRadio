@@ -13,6 +13,8 @@ public:
     void SetArtist(CString strValue);
     void SetTitle(CString strValue);
 
+    CFont m_fontKey, m_fontValue;
+
     CStatic m_stcNameKey;
     CStatic m_stcArtistKey;
     CStatic m_stcTitleKey;
