@@ -60,7 +60,6 @@ CFreedomRadioVS2019Dlg::CFreedomRadioVS2019Dlg(CWnd* pParent /*=nullptr*/)
 void CFreedomRadioVS2019Dlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_LST_RADIO_LIST, m_lstRadioList);
 	DDX_Control(pDX, IDC_LST_RADIO_INFO, m_lstRadioInfo);
 	DDX_Control(pDX, IDC_EDT_LOG, m_edtLog);
 	//DDX_Control(pDX, IDC_CUSTOM_RADIO_CHANNEL_PANEL, m_wndRadioChannelPanel);
@@ -184,32 +183,15 @@ LRESULT CFreedomRadioVS2019Dlg::OnSendRadioNowPlaying(WPARAM wParam, LPARAM lPar
 
 void CFreedomRadioVS2019Dlg::InitControls()
 {
-	// Init radio list
-	m_lstRadioList.SetExtendedStyle(m_lstRadioList.GetExtendedStyle() | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-
-	CRect rcRadioList;
-	m_lstRadioList.GetClientRect(&rcRadioList);
-	int nWidthRadioList = rcRadioList.Width() - 20; // 20 : Scroll bar size
-
-	m_lstRadioList.InsertColumn(0, _T("Radio Name"), LVCFMT_CENTER, static_cast<int>(nWidthRadioList * 0.25));
-	m_lstRadioList.InsertColumn(1, _T("URL"), LVCFMT_LEFT, static_cast<int>(nWidthRadioList * 0.75));
-
-	// Test data
-	m_lstRadioList.InsertItem(0, _T("이름 없는 음악실"));
-	m_lstRadioList.SetItemText(0, 1, _T("http://nonamepiano.saycast.com"));
-
-	m_lstRadioList.InsertItem(1, _T("맑은 빗소리 클래식 방송"));
-	m_lstRadioList.SetItemText(1, 1, _T("http://yes1959.saycast.com"));
-
 	////// Init radio info
-	m_lstRadioInfo.SetExtendedStyle(m_lstRadioList.GetExtendedStyle() | LVS_EX_GRIDLINES);
+	m_lstRadioInfo.SetExtendedStyle(m_lstRadioInfo.GetExtendedStyle() | LVS_EX_GRIDLINES);
 
 	CRect rcRadioInfo;
 	m_lstRadioInfo.GetClientRect(&rcRadioInfo);
 	int nWidthRadioInfo = rcRadioInfo.Width();
 
-	m_lstRadioInfo.InsertColumn(0, _T("Category"), LVCFMT_CENTER, static_cast<int>(nWidthRadioList * 0.25));
-	m_lstRadioInfo.InsertColumn(1, _T("Value"), LVCFMT_LEFT, static_cast<int>(nWidthRadioList * 0.75));
+	m_lstRadioInfo.InsertColumn(0, _T("Category"), LVCFMT_CENTER, static_cast<int>(nWidthRadioInfo * 0.25));
+	m_lstRadioInfo.InsertColumn(1, _T("Value"), LVCFMT_LEFT, static_cast<int>(nWidthRadioInfo * 0.75));
 
 	// Name
 	m_lstRadioInfo.InsertItem(0, _T("Radio name"));

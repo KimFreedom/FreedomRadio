@@ -57,6 +57,7 @@ void CRadioChannelPanelWnd::InitControl()
 
 void CRadioChannelPanelWnd::RefreshChannelList(CChannelManager& objChannelManager)
 {
+    ShowWindow(SW_HIDE);
     ClearChannelView();
 
     int nChannelCount = objChannelManager.CountChannelInfo();
@@ -90,6 +91,7 @@ void CRadioChannelPanelWnd::RefreshChannelList(CChannelManager& objChannelManage
         objChannel->ShowWindow(SW_SHOW);
         m_vtChannelView.push_back(objChannel);
     }
+    ShowWindow(SW_SHOW);
 }
 
 
@@ -119,7 +121,6 @@ BOOL CRadioChannelPanelWnd::Create(CRect rect, CWnd* pParent, UINT windowID)
 {
     LONG lws = WS_VISIBLE | WS_BORDER | WS_CHILD;
     BOOL bRet = Create(lws, rect, pParent, windowID);
-    //BOOL bRet = Create(lws, CRect(0, 0, rect.Width(), rect.Height()), pParent, windowID);
     if (bRet == TRUE)
     {
         InitControl();
@@ -156,62 +157,16 @@ BOOL CRadioChannelPanelWnd::RegisterWindowClass()
     return TRUE;
 }
 
-/*
-BOOL CRadioChannelPanelWnd::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, CCreateContext* pContext)
-{
-    InitControl();
-
-    return CWnd::Create(lpszClassName, lpszWindowName, dwStyle, rect, pParentWnd, nID, pContext);
-}
-*/BEGIN_MESSAGE_MAP(CRadioChannelPanelWnd, CWnd)
-ON_WM_KEYDOWN()
+BEGIN_MESSAGE_MAP(CRadioChannelPanelWnd, CWnd)
 END_MESSAGE_MAP()
-
-
-void CRadioChannelPanelWnd::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-    /*
-    CRect rcItem;
-
-    switch (nChar)
-    {
-    case VK_UP:
-        for (int i = 0; i < 20; i++)
-        {
-            m_pChannelView[i].GetWindowRect(&rcItem);
-            ScreenToClient(rcItem);
-            rcItem.top    -= 1;
-            rcItem.bottom -= 1;
-            m_pChannelView[i].MoveWindow(rcItem);
-        }
-        break;
-
-    case VK_DOWN:
-        for (int i = 0; i < 20; i++)
-        {
-            m_pChannelView[i].GetWindowRect(&rcItem);
-            ScreenToClient(rcItem);
-            rcItem.top += 1;
-            rcItem.bottom += 1;
-            m_pChannelView[i].MoveWindow(rcItem);
-        }
-        break;
-
-    default:
-        break;
-    }
-    */
-
-    CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
-}
 
 
 BOOL CRadioChannelPanelWnd::OnCommand(WPARAM wParam, LPARAM lParam)
 {
-    CRect rcItem, rcPanelWnd;
+    CRect rcItem;
     const int MOVE_POWER = CHANNEL_HEIGHT + CHANNEL_MARGIN;
     int nChannelCount = m_vtChannelView.size();
-    GetClientRect(&rcPanelWnd);
+    HDWP hdwp = ::BeginDeferWindowPos(nChannelCount);
 
     switch (wParam)
     {
@@ -222,9 +177,10 @@ BOOL CRadioChannelPanelWnd::OnCommand(WPARAM wParam, LPARAM lParam)
             ScreenToClient(rcItem);
             rcItem.top += MOVE_POWER;
             rcItem.bottom += MOVE_POWER;
-            m_vtChannelView[i]->MoveWindow(rcItem, FALSE);
+            ::DeferWindowPos(hdwp, m_vtChannelView[i]->GetSafeHwnd(), HWND_TOP,
+                rcItem.left, rcItem.top, rcItem.Width(), rcItem.Height(),
+                SWP_NOZORDER);
         }
-        RedrawWindow(rcPanelWnd);
         break;
 
     case 11001: // DOWN
@@ -234,14 +190,17 @@ BOOL CRadioChannelPanelWnd::OnCommand(WPARAM wParam, LPARAM lParam)
             ScreenToClient(rcItem);
             rcItem.top -= MOVE_POWER;
             rcItem.bottom -= MOVE_POWER;
-            m_vtChannelView[i]->MoveWindow(rcItem, FALSE);
+            ::DeferWindowPos(hdwp, m_vtChannelView[i]->GetSafeHwnd(), HWND_TOP,
+                rcItem.left, rcItem.top, rcItem.Width(), rcItem.Height(),
+                SWP_NOZORDER);
         }
-        RedrawWindow(rcPanelWnd);
         break;
 
     default:
         break;
     }
+
+    ::EndDeferWindowPos(hdwp);
 
     return CWnd::OnCommand(wParam, lParam);
 }
