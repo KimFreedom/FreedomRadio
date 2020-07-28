@@ -154,3 +154,7 @@ void CRadioChannelView::SetTitle(CString strValue)
 }
 
 
+void CRadioChannelView::SetNowPlaying()
+{
+    ;
+}

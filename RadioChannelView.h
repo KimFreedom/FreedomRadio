@@ -12,6 +12,7 @@ public:
     void SetName(CString strValue);
     void SetArtist(CString strValue);
     void SetTitle(CString strValue);
+    void SetNowPlaying();
 
     CFont m_fontKey, m_fontValue;
 

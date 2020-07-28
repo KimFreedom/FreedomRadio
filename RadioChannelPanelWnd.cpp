@@ -158,6 +158,7 @@ BOOL CRadioChannelPanelWnd::RegisterWindowClass()
 }
 
 BEGIN_MESSAGE_MAP(CRadioChannelPanelWnd, CWnd)
+    ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 
@@ -205,3 +206,50 @@ BOOL CRadioChannelPanelWnd::OnCommand(WPARAM wParam, LPARAM lParam)
     return CWnd::OnCommand(wParam, lParam);
 }
 
+
+
+void CRadioChannelPanelWnd::OnSize(UINT nType, int cx, int cy)
+{
+    CWnd::OnSize(nType, cx, cy);
+
+    CRect rcItem, rcPanelWnd;
+    int nChannelCount = m_vtChannelView.size();
+    HDWP hdwp = ::BeginDeferWindowPos(nChannelCount + 2);
+    GetClientRect(&rcPanelWnd);
+    const int CHANNEL_WIDTH = (rcPanelWnd.Width() - (CHANNEL_MARGIN * 3) - SCROLL_WIDTH) / 2;
+    const int LEFT_CHANNEL_LEFT_POS = CHANNEL_MARGIN;
+    const int RIGHT_CHANNEL_LEFT_POS = (CHANNEL_MARGIN * 2) + CHANNEL_WIDTH;
+    const CRect rcScrollUp(rcPanelWnd.right - SCROLL_WIDTH + CHANNEL_CONTROL_PADDING, CHANNEL_CONTROL_PADDING,
+        rcPanelWnd.right - CHANNEL_CONTROL_PADDING, CHANNEL_CONTROL_PADDING + SCROLL_WIDTH);
+    const CRect rcScrollDown(rcScrollUp.left, rcPanelWnd.bottom - CHANNEL_CONTROL_MARGIN - SCROLL_WIDTH,
+        rcScrollUp.right, rcPanelWnd.bottom - CHANNEL_CONTROL_MARGIN);
+
+    for (int i = 0; i < nChannelCount; i++)
+    {
+        m_vtChannelView[i]->GetWindowRect(&rcItem);
+        ScreenToClient(rcItem);
+        if ((i % 2) == 0)
+        {
+            rcItem.left = LEFT_CHANNEL_LEFT_POS;
+            rcItem.right = LEFT_CHANNEL_LEFT_POS + CHANNEL_WIDTH;
+        }
+        else
+        {
+            rcItem.left = LEFT_CHANNEL_LEFT_POS + CHANNEL_WIDTH + CHANNEL_MARGIN;
+            rcItem.right = rcItem.left + CHANNEL_WIDTH;
+        }
+        ::DeferWindowPos(hdwp, m_vtChannelView[i]->GetSafeHwnd(), HWND_TOP,
+            rcItem.left, rcItem.top, rcItem.Width(), rcItem.Height(),
+            SWP_NOZORDER);
+    }
+    ::DeferWindowPos(hdwp, m_btnScrollUp.GetSafeHwnd(), HWND_TOP,
+        rcScrollUp.left, rcScrollUp.top, rcScrollUp.Width(), rcScrollUp.Height(),
+        SWP_NOZORDER | SWP_NOSIZE);
+    ::DeferWindowPos(hdwp, m_btnScrollDown.GetSafeHwnd(), HWND_TOP,
+        rcScrollDown.left, rcScrollDown.top, rcScrollDown.Width(), rcScrollDown.Height(),
+        SWP_NOZORDER | SWP_NOSIZE);
+
+    ::EndDeferWindowPos(hdwp);
+
+    ;
+}

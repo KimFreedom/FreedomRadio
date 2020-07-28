@@ -27,5 +27,6 @@ protected:
 public:
     DECLARE_MESSAGE_MAP()
     virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
+    afx_msg void OnSize(UINT nType, int cx, int cy);
 };
 
