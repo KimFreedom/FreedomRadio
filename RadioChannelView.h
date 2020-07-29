@@ -1,4 +1,5 @@
 #pragma once
+#include "FreedomRadioPlayer.h"
 #include <afxwin.h>
 
 class CRadioChannelView :
@@ -9,10 +10,18 @@ public:
     virtual ~CRadioChannelView();
 
     void InitControl();
-    void SetName(CString strValue);
-    void SetArtist(CString strValue);
-    void SetTitle(CString strValue);
-    void SetNowPlaying();
+    void SetRadioInfo(std::wstring strName, std::wstring strURL);
+    void SetName(CString csValue);
+    void SetURL(CString csValue);
+    void SetArtist(CString csValue);
+    void SetTitle(CString csValue);
+    void RefreshNowPlaying();
+
+    std::wstring ConvertCStringToString(CString csValue);
+
+    CFreedomRadioPlayer m_objRadioPlayer;
+    CString m_csName;
+    CString m_csURL;
 
     CFont m_fontKey, m_fontValue;
 
@@ -25,6 +34,8 @@ public:
 
 protected:
     BOOL RegisterWindowClass();
+    afx_msg LRESULT OnSendRadioSubInfo(WPARAM wParam, LPARAM lParam);
+    afx_msg LRESULT OnSendRadioNowPlaying(WPARAM wParam, LPARAM lParam);
 public:
     BOOL Create(long windowStyle, CRect rect, CWnd* pParent, UINT windowID);
     BOOL Create(CRect rect, CWnd* pParent, UINT windowID);

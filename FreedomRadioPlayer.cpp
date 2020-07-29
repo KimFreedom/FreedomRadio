@@ -200,12 +200,12 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 		}
 
 		// Remaining responseData is MP3 data
-		pMP3Buf = new std::uint8_t[nMetadataInterval];
-		ZeroMemory(pMP3Buf, sizeof(std::uint8_t) * nMetadataInterval);
+		//pMP3Buf = new std::uint8_t[nMetadataInterval];
+		//ZeroMemory(pMP3Buf, sizeof(std::uint8_t) * nMetadataInterval);
 		nStoredDataSize = responseData.size();
 		if (nStoredDataSize > 0)
 		{
-			std::copy(responseData.begin(), responseData.end(), pMP3Buf);
+			//std::copy(responseData.begin(), responseData.end(), pMP3Buf);
 		}
 		responseData.clear();
 
@@ -244,6 +244,8 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 							{
 								pPlayer->SetRadioNowPlaying(wValue);
 								::PostMessage(pPlayer->m_hParentHandle, UM_SEND_RADIO_NOW_PLAYING, 0, 0);
+								pPlayer->m_bIsPlayingRadio = FALSE;
+								break;
 							}
 						}
 						else if (metadataName.compare("StreamUrl") == 0)
@@ -255,12 +257,17 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 				}
 			}
 
+			if (pPlayer->m_bIsPlayingRadio == false)
+			{
+				break;
+			}
+
 			int iStartFrame = nRemainMetadata;
 			int nSizeFrame = sizeReceivedFrame - nRemainMetadata;
 			int nBufferSpace = nMetadataInterval - nStoredDataSize;
 			if (nBufferSpace >= nSizeFrame)
 			{
-				memcpy_s(&pMP3Buf[nStoredDataSize], nSizeFrame, tempBuffer + iStartFrame, nSizeFrame);
+				//memcpy_s(&pMP3Buf[nStoredDataSize], nSizeFrame, tempBuffer + iStartFrame, nSizeFrame);
 				nStoredDataSize += nSizeFrame;
 				nRemainMetadata = 0;
 			}
@@ -268,7 +275,7 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 			{
 				if (nBufferSpace > 0)
 				{
-					memcpy_s(&pMP3Buf[nStoredDataSize], nBufferSpace, tempBuffer, nBufferSpace);
+					//memcpy_s(&pMP3Buf[nStoredDataSize], nBufferSpace, tempBuffer, nBufferSpace);
 				}
 
 				// TODO - Send MP3 data
@@ -307,6 +314,8 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 							{
 								pPlayer->SetRadioNowPlaying(wValue);
 								::PostMessage(pPlayer->m_hParentHandle, UM_SEND_RADIO_NOW_PLAYING, 0, 0);
+								pPlayer->m_bIsPlayingRadio = FALSE;
+								break;
 							}
 						}
 						else if (metadataName.compare("StreamUrl") == 0)
@@ -317,12 +326,17 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 					}
 				}
 
+				if (pPlayer->m_bIsPlayingRadio == false)
+				{
+					break;
+				}
+
 				// Clear MP3Buffer
-				ZeroMemory(pMP3Buf, sizeof(std::uint8_t)* nMetadataInterval);
+				//ZeroMemory(pMP3Buf, sizeof(std::uint8_t)* nMetadataInterval);
 
 				// Copy rest MP3 data
 				nStoredDataSize = sizeReceivedFrame - nBufferSpace - 1 - nMetadataSize;
-				memcpy_s(pMP3Buf, nStoredDataSize, tempBuffer + nBufferSpace + 1 + nMetadataSize, nStoredDataSize);
+				//memcpy_s(pMP3Buf, nStoredDataSize, tempBuffer + nBufferSpace + 1 + nMetadataSize, nStoredDataSize);
 			}
 		}
 	}

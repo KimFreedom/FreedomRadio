@@ -51,6 +51,7 @@
 
 #define SCROLL_WIDTH            50
 
+#define TIMER_RADIO_REFRESH     WM_USER + 1100
 
 
 #ifdef _UNICODE

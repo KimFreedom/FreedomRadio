@@ -133,12 +133,32 @@ void CRadioChannelView::InitControl()
     m_stcNameValue.SetFont(&m_fontValue, TRUE);
     m_stcArtistValue.SetFont(&m_fontValue, TRUE);
     m_stcTitleValue.SetFont(&m_fontValue, TRUE);
+
+    m_objRadioPlayer.m_hParentHandle = this->m_hWnd;
+}
+
+
+void CRadioChannelView::SetRadioInfo(std::wstring strName, std::wstring strURL)
+{
+    CString csName(strName.c_str());
+    CString csURL(strURL.c_str());
+    SetName(csName);
+    SetURL(csURL);
+
+    m_objRadioPlayer.SetRadioInfo(strName, strURL);
 }
 
 
 void CRadioChannelView::SetName(CString strValue)
 {
+    m_csName = strValue;
     m_stcNameValue.SetWindowText(strValue);
+}
+
+
+void CRadioChannelView::SetURL(CString strValue)
+{
+    m_csURL = strValue;
 }
 
 
@@ -154,7 +174,44 @@ void CRadioChannelView::SetTitle(CString strValue)
 }
 
 
-void CRadioChannelView::SetNowPlaying()
+void CRadioChannelView::RefreshNowPlaying()
 {
-    ;
+    m_objRadioPlayer.PlayRadio();
+}
+
+
+LRESULT CRadioChannelView::OnSendRadioSubInfo(WPARAM wParam, LPARAM lParam)
+{
+    // Nothing to do
+    return 0;
+}
+
+
+LRESULT CRadioChannelView::OnSendRadioNowPlaying(WPARAM wParam, LPARAM lParam)
+{
+    // Now playing
+    CString csValue(m_objRadioPlayer.GetRadioNowPlaying().c_str());
+
+    // Split Artist - Title
+    int iSplit = csValue.Find(_T("-"));
+    if (iSplit < 0)
+    {
+        return 0;
+    }
+
+    CString csArtist = csValue.Left(iSplit);
+    csArtist.Trim();
+    SetArtist(csArtist);
+
+    CString csTitle = csValue.Mid(iSplit + 1);
+    csTitle.Trim();
+    SetTitle(csTitle);
+
+    return 0;
+}
+
+
+std::wstring CRadioChannelView::ConvertCStringToString(CString csValue)
+{
+    return csValue.operator LPCWSTR();
 }

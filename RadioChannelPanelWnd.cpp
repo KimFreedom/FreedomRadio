@@ -29,7 +29,8 @@ ATOM RegisterClassRadioChannelPanelWindow(HINSTANCE hInstance)
 
 CRadioChannelPanelWnd::CRadioChannelPanelWnd()
 {
-    ;
+    m_iVisibleChannelIndexFirst = -1;
+    m_iVisibleChannelIndexLast = -1;
 }
 
 
@@ -84,14 +85,36 @@ void CRadioChannelPanelWnd::RefreshChannelList(CChannelManager& objChannelManage
         
         CRadioChannelView *objChannel = new CRadioChannelView();
         CRadioChannel* pChannel = objChannelManager.GetChannelInfo(i);
-        CString csName(pChannel->GetName().c_str());
+        //CString csName(pChannel->GetName().c_str());
         bResult = objChannel->Create(rcChannelView, this, 10000 + i);
-        objChannel->SetName(csName);
+        //objChannel->SetName(csName);
+        objChannel->SetRadioInfo(pChannel->GetName(), pChannel->GetURL());
         objChannel->EnableWindow(TRUE);
         objChannel->ShowWindow(SW_SHOW);
         m_vtChannelView.push_back(objChannel);
     }
     ShowWindow(SW_SHOW);
+
+    if (nChannelCount > 0)
+    {
+        m_iVisibleChannelIndexFirst = 0;
+        m_iVisibleChannelIndexLast = min((DWORD)nChannelCount - 1, 13);
+    }
+
+    SetTimer(TIMER_RADIO_REFRESH, 10000, NULL);
+}
+
+
+void CRadioChannelPanelWnd::RefreshRadio()
+{
+    if ((m_iVisibleChannelIndexFirst < 0) || (m_iVisibleChannelIndexLast < 0))
+    {
+        return;
+    }
+    for (int i = m_iVisibleChannelIndexFirst; i <= m_iVisibleChannelIndexLast; i++)
+    {
+        m_vtChannelView[i]->RefreshNowPlaying();
+    }
 }
 
 
@@ -159,6 +182,7 @@ BOOL CRadioChannelPanelWnd::RegisterWindowClass()
 
 BEGIN_MESSAGE_MAP(CRadioChannelPanelWnd, CWnd)
     ON_WM_SIZE()
+    ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -172,6 +196,10 @@ BOOL CRadioChannelPanelWnd::OnCommand(WPARAM wParam, LPARAM lParam)
     switch (wParam)
     {
     case 11000: // UP
+        if (m_iVisibleChannelIndexFirst <= 0)
+        {
+            break;
+        }
         for (int i = 0; i < nChannelCount; i++)
         {
             m_vtChannelView[i]->GetWindowRect(&rcItem);
@@ -182,9 +210,15 @@ BOOL CRadioChannelPanelWnd::OnCommand(WPARAM wParam, LPARAM lParam)
                 rcItem.left, rcItem.top, rcItem.Width(), rcItem.Height(),
                 SWP_NOZORDER);
         }
+        m_iVisibleChannelIndexFirst -= 2;
+        m_iVisibleChannelIndexLast = m_iVisibleChannelIndexFirst + 13;
         break;
 
     case 11001: // DOWN
+        if ((m_iVisibleChannelIndexLast <= 0) || (m_iVisibleChannelIndexLast == nChannelCount - 1))
+        {
+            break;
+        }
         for (int i = 0; i < nChannelCount; i++)
         {
             m_vtChannelView[i]->GetWindowRect(&rcItem);
@@ -195,6 +229,8 @@ BOOL CRadioChannelPanelWnd::OnCommand(WPARAM wParam, LPARAM lParam)
                 rcItem.left, rcItem.top, rcItem.Width(), rcItem.Height(),
                 SWP_NOZORDER);
         }
+        m_iVisibleChannelIndexFirst += 2;
+        m_iVisibleChannelIndexLast = min(m_iVisibleChannelIndexFirst + 13, nChannelCount - 1);
         break;
 
     default:
@@ -250,6 +286,16 @@ void CRadioChannelPanelWnd::OnSize(UINT nType, int cx, int cy)
         SWP_NOZORDER | SWP_NOSIZE);
 
     ::EndDeferWindowPos(hdwp);
+}
 
-    ;
+void CRadioChannelPanelWnd::OnTimer(UINT_PTR nIDEvent)
+{
+    switch (nIDEvent)
+    {
+    case TIMER_RADIO_REFRESH:
+        RefreshRadio();
+        break;
+    }
+
+    CWnd::OnTimer(nIDEvent);
 }
