@@ -99,9 +99,13 @@ void CRadioChannelPanelWnd::RefreshChannelList(CChannelManager& objChannelManage
     {
         m_iVisibleChannelIndexFirst = 0;
         m_iVisibleChannelIndexLast = min((DWORD)nChannelCount - 1, 13);
+        for (int i = m_iVisibleChannelIndexFirst; i <= m_iVisibleChannelIndexLast; i++)
+        {
+            m_vtChannelView[i]->m_bIsVisible = TRUE;
+        }
     }
 
-    SetTimer(TIMER_RADIO_REFRESH, 10000, NULL);
+    //SetTimer(TIMER_RADIO_REFRESH, 10000, NULL);
 }
 
 
@@ -212,6 +216,16 @@ BOOL CRadioChannelPanelWnd::OnCommand(WPARAM wParam, LPARAM lParam)
         }
         m_iVisibleChannelIndexFirst -= 2;
         m_iVisibleChannelIndexLast = m_iVisibleChannelIndexFirst + 13;
+        if (m_iVisibleChannelIndexLast + 1 < nChannelCount)
+        {
+            m_vtChannelView[m_iVisibleChannelIndexLast + 1]->m_bIsVisible = FALSE;
+        }
+        if (m_iVisibleChannelIndexLast + 2 < nChannelCount)
+        {
+            m_vtChannelView[m_iVisibleChannelIndexLast + 2]->m_bIsVisible = FALSE;
+        }
+        m_vtChannelView[m_iVisibleChannelIndexFirst]->m_bIsVisible = TRUE;
+        m_vtChannelView[m_iVisibleChannelIndexFirst + 1]->m_bIsVisible = TRUE;
         break;
 
     case 11001: // DOWN
@@ -231,6 +245,10 @@ BOOL CRadioChannelPanelWnd::OnCommand(WPARAM wParam, LPARAM lParam)
         }
         m_iVisibleChannelIndexFirst += 2;
         m_iVisibleChannelIndexLast = min(m_iVisibleChannelIndexFirst + 13, nChannelCount - 1);
+        m_vtChannelView[m_iVisibleChannelIndexFirst - 2]->m_bIsVisible = FALSE;
+        m_vtChannelView[m_iVisibleChannelIndexFirst - 1]->m_bIsVisible = FALSE;
+        m_vtChannelView[m_iVisibleChannelIndexLast]->m_bIsVisible = TRUE;
+        m_vtChannelView[m_iVisibleChannelIndexLast - 1]->m_bIsVisible = TRUE;
         break;
 
     default:
@@ -293,7 +311,7 @@ void CRadioChannelPanelWnd::OnTimer(UINT_PTR nIDEvent)
     switch (nIDEvent)
     {
     case TIMER_RADIO_REFRESH:
-        RefreshRadio();
+        //RefreshRadio();
         break;
     }
 

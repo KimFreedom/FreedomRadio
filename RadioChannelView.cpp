@@ -26,17 +26,67 @@ ATOM RegisterClassRadioChannelView(HINSTANCE hInstance)
 }
 
 
+DWORD WINAPI ThreadRadioTimer(LPVOID lpParam)
+{
+    TRACE("RadioThreadTimer Start!\n");
+    CRadioChannelView* pView = (CRadioChannelView*)lpParam;
+    LARGE_INTEGER liFreq, liLastUpdate, liCurrent;
+    __int64 nUpdateTime = 0;
+    QueryPerformanceFrequency(&liFreq);
+    QueryPerformanceCounter(&liLastUpdate);
+    // 첫 Timer는 반드시 실행하도록 마지막 Update 시간을 10초 전으로 설정
+    liLastUpdate.QuadPart -= liFreq.QuadPart * 10;
+
+    while (pView->m_bActiveThread == TRUE)
+    {
+        if (pView->m_bIsVisible == TRUE)
+        {
+            QueryPerformanceCounter(&liCurrent);
+            nUpdateTime = (liCurrent.QuadPart - liLastUpdate.QuadPart) / liFreq.QuadPart;
+            if (nUpdateTime > 5)
+            {
+                pView->RefreshNowPlaying();
+                liLastUpdate = liCurrent;
+            }
+        }
+
+        Sleep(1000);
+    }
+
+    // Thread end
+THREAD_END:
+    pView->m_bActiveThread = NULL;
+    CloseHandle(pView->m_hRadioTimerThread);
+    pView->m_hRadioTimerThread = NULL;
+    TRACE("RadioThreadTimer End!\n");
+    return 0;
+}
+
+
 CRadioChannelView::CRadioChannelView()
 {
-    ;
+    m_bIsVisible = FALSE;
+    m_bActiveThread = FALSE;
+    m_hRadioTimerThread = NULL;
 }
 
 
 CRadioChannelView::~CRadioChannelView()
 {
+    if (m_bActiveThread == TRUE)
+    {
+        m_bActiveThread == FALSE;
+        WaitForSingleObject(m_hRadioTimerThread, 5000);
+    }
+
     m_fontKey.DeleteObject();
     m_fontValue.DeleteObject();
 }
+
+
+BEGIN_MESSAGE_MAP(CRadioChannelView, CWnd)
+    ON_MESSAGE(UM_SEND_RADIO_NOW_PLAYING, OnSendRadioNowPlaying)
+END_MESSAGE_MAP()
 
 
 BOOL CRadioChannelView::RegisterWindowClass()
@@ -146,6 +196,10 @@ void CRadioChannelView::SetRadioInfo(std::wstring strName, std::wstring strURL)
     SetURL(csURL);
 
     m_objRadioPlayer.SetRadioInfo(strName, strURL);
+
+    DWORD dwThreadID = 0;
+    m_bActiveThread = true;
+    m_hRadioTimerThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadRadioTimer, this, NULL, &dwThreadID);
 }
 
 
@@ -193,7 +247,7 @@ LRESULT CRadioChannelView::OnSendRadioNowPlaying(WPARAM wParam, LPARAM lParam)
     CString csValue(m_objRadioPlayer.GetRadioNowPlaying().c_str());
 
     // Split Artist - Title
-    int iSplit = csValue.Find(_T("-"));
+    int iSplit = csValue.Find(_T(" - "));
     if (iSplit < 0)
     {
         return 0;
@@ -203,7 +257,7 @@ LRESULT CRadioChannelView::OnSendRadioNowPlaying(WPARAM wParam, LPARAM lParam)
     csArtist.Trim();
     SetArtist(csArtist);
 
-    CString csTitle = csValue.Mid(iSplit + 1);
+    CString csTitle = csValue.Mid(iSplit + 3);
     csTitle.Trim();
     SetTitle(csTitle);
 

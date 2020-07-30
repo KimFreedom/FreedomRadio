@@ -22,6 +22,9 @@ public:
     CFreedomRadioPlayer m_objRadioPlayer;
     CString m_csName;
     CString m_csURL;
+    BOOL    m_bIsVisible;
+    BOOL    m_bActiveThread;
+    HANDLE  m_hRadioTimerThread;
 
     CFont m_fontKey, m_fontValue;
 
@@ -36,6 +39,7 @@ protected:
     BOOL RegisterWindowClass();
     afx_msg LRESULT OnSendRadioSubInfo(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnSendRadioNowPlaying(WPARAM wParam, LPARAM lParam);
+    DECLARE_MESSAGE_MAP()
 public:
     BOOL Create(long windowStyle, CRect rect, CWnd* pParent, UINT windowID);
     BOOL Create(CRect rect, CWnd* pParent, UINT windowID);

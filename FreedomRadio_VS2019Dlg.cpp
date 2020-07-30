@@ -355,6 +355,8 @@ void CFreedomRadioVS2019Dlg::OpenChannelList(CString strPathChannelList)
 	}
 	
 	std::wstring strLine, strName, strURL;
+	//std::wstring strLine, strName, wstrURL;
+	//std::string  strURL;
 	bool bIsOpenEntry = false;
 	while (std::getline(fileChannelList, strLine))
 	{
@@ -375,7 +377,7 @@ void CFreedomRadioVS2019Dlg::OpenChannelList(CString strPathChannelList)
 			{
 				size_t iURLStart = strLine.find_first_of('\"');
 				size_t iURLEnd = strLine.find_last_of('\"');
-				strURL = strLine.substr(iURLStart, iURLEnd - iURLStart);
+				strURL = strLine.substr(iURLStart + 1, iURLEnd - iURLStart - 1);
 			}
 			else if (strLine == L"</entry>")
 			{
