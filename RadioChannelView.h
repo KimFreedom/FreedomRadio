@@ -16,6 +16,7 @@ public:
     void SetArtist(CString csValue);
     void SetTitle(CString csValue);
     void RefreshNowPlaying();
+    void StopRefreshing();
 
     std::wstring ConvertCStringToString(CString csValue);
 

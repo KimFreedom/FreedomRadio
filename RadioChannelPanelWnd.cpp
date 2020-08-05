@@ -126,8 +126,8 @@ void CRadioChannelPanelWnd::ClearChannelView()
 {
     for (int i = 0; i < m_vtChannelView.size(); i++)
     {
-        m_vtChannelView[i]->DestroyWindow();
-        delete m_vtChannelView[i];
+        m_vtChannelView[i]->StopRefreshing();
+        //m_vtChannelView[i]->DestroyWindow();
     }
     m_vtChannelView.clear();
 }

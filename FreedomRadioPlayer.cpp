@@ -8,7 +8,7 @@ std::vector<std::string> TokenizeMetadata(std::vector<std::uint8_t> vtData, std:
 
 DWORD WINAPI ThreadRadio(LPVOID lpParam)
 {
-    TRACE("RadioThread Start!\n");
+	TRACE("RadioThread Start!\n");
     CFreedomRadioPlayer* pPlayer = (CFreedomRadioPlayer*)lpParam;
 	std::wstring wURL = pPlayer->GetRadioURL();
 	std::string url;
@@ -59,7 +59,9 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 	}
 	catch (const std::exception& e)
 	{
-		TRACE(_T("Exception while get stream server! err:\n"), e);
+		TCHAR szError[1024];
+		MultiByteToWideChar(CP_ACP, 0, e.what(), -1, szError, 1024);
+		TRACE(_T("Exception while get stream server! err:%s\n"), szError);
 		goto THREAD_END;
 	}
 
@@ -290,11 +292,11 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 					{
 						std::string metadataName = strMetadata.substr(0, iEqual);
 						std::string metadataValue = strMetadata.substr(iEqual + 1);
-						std::wstring wValue;
-						wValue.assign(metadataValue.begin(), metadataValue.end());
 
 						if (metadataName.compare("StreamTitle") == 0)
 						{
+							std::wstring wValue;
+							wValue.assign(metadataValue.begin(), metadataValue.end());
 							if (pPlayer->IsNewSong(wValue) == true)
 							{
 								pPlayer->SetRadioNowPlaying(wValue);
@@ -323,13 +325,15 @@ DWORD WINAPI ThreadRadio(LPVOID lpParam)
 	}
 	catch (const std::exception& e)
 	{
-		TRACE(_T("Exception while get Metadata! err:\n"), e);
+		TCHAR szError[1024];
+		MultiByteToWideChar(CP_ACP, 0, e.what(), -1, szError, 1024);
+		TRACE(_T("Exception while get Metadata! err:%s\n"), szError);
 		goto THREAD_END;
 	}
 
     // Thread end
 THREAD_END:
-    pPlayer->m_bIsPlayingRadio = NULL;
+    pPlayer->m_bIsPlayingRadio = false;
     CloseHandle(pPlayer->m_hRadioThread);
     pPlayer->m_hRadioThread = NULL;
     TRACE("RadioThread End!\n");
@@ -391,7 +395,9 @@ DWORD WINAPI ThreadRadio_org(LPVOID lpParam)
 	}
 	catch (const std::exception& e)
 	{
-		TRACE(_T("Exception while get stream server! err:\n"), e);
+		TCHAR szError[1024];
+		MultiByteToWideChar(CP_ACP, 0, e.what(), -1, szError, 1024);
+		TRACE(_T("Exception while get stream server! err:%s\n"), szError);
 		goto THREAD_END;
 	}
 
@@ -674,7 +680,9 @@ DWORD WINAPI ThreadRadio_org(LPVOID lpParam)
 	}
 	catch (const std::exception& e)
 	{
-		TRACE(_T("Exception while get Metadata! err:\n"), e);
+		TCHAR szError[1024];
+		MultiByteToWideChar(CP_ACP, 0, e.what(), -1, szError, 1024);
+		TRACE(_T("Exception while get Metadata! err:%s\n"), szError);
 		goto THREAD_END;
 	}
 

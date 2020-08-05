@@ -54,8 +54,7 @@ DWORD WINAPI ThreadRadioTimer(LPVOID lpParam)
     }
 
     // Thread end
-THREAD_END:
-    pView->m_bActiveThread = NULL;
+    pView->m_bActiveThread = FALSE;
     CloseHandle(pView->m_hRadioTimerThread);
     pView->m_hRadioTimerThread = NULL;
     TRACE("RadioThreadTimer End!\n");
@@ -73,11 +72,7 @@ CRadioChannelView::CRadioChannelView()
 
 CRadioChannelView::~CRadioChannelView()
 {
-    if (m_bActiveThread == TRUE)
-    {
-        m_bActiveThread == FALSE;
-        WaitForSingleObject(m_hRadioTimerThread, 5000);
-    }
+    StopRefreshing();
 
     m_fontKey.DeleteObject();
     m_fontValue.DeleteObject();
@@ -231,6 +226,18 @@ void CRadioChannelView::SetTitle(CString strValue)
 void CRadioChannelView::RefreshNowPlaying()
 {
     m_objRadioPlayer.PlayRadio();
+}
+
+
+void CRadioChannelView::StopRefreshing()
+{
+    if (m_bActiveThread == TRUE)
+    {
+        m_bActiveThread = FALSE;
+        WaitForSingleObject(m_hRadioTimerThread, 5000);
+    }
+
+    m_objRadioPlayer.StopRadio();
 }
 
 
