@@ -63,6 +63,7 @@ void CFreedomRadioVS2019Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LST_RADIO_INFO, m_lstRadioInfo);
 	DDX_Control(pDX, IDC_EDT_LOG, m_edtLog);
 	//DDX_Control(pDX, IDC_CUSTOM_RADIO_CHANNEL_PANEL, m_wndRadioChannelPanel);
+	DDX_Control(pDX, IDC_BTN_LOAD_RADIO_CHANNEL_LIST_FILE, m_btnLoadRadioChannelListFile);
 }
 
 BEGIN_MESSAGE_MAP(CFreedomRadioVS2019Dlg, CDialogEx)
@@ -76,6 +77,7 @@ BEGIN_MESSAGE_MAP(CFreedomRadioVS2019Dlg, CDialogEx)
 	ON_NOTIFY(NM_DBLCLK, IDC_LST_RADIO_LIST, &CFreedomRadioVS2019Dlg::OnNMDblclkLstRadioList)
 	ON_WM_SIZE()
 	ON_WM_LBUTTONUP()
+	ON_BN_CLICKED(IDC_BTN_LOAD_RADIO_CHANNEL_LIST_FILE, &CFreedomRadioVS2019Dlg::OnBnClickedBtnLoadRadioChannelListFile)
 END_MESSAGE_MAP()
 
 
@@ -339,6 +341,12 @@ void CFreedomRadioVS2019Dlg::OpenChannelListFile()
 	}
 
 	OpenChannelList(strPathChannelList);
+
+	if (m_btnLoadRadioChannelListFile.IsWindowVisible() == TRUE)
+	{
+		m_btnLoadRadioChannelListFile.ShowWindow(SW_HIDE);
+	}
+
 	RefreshRadioList();
 }
 
@@ -454,4 +462,9 @@ CString CFreedomRadioVS2019Dlg::GetProcessPath()
 	while (*p != _T('\\') && p > lpszDir) p--;
 	*p = _T('\0');
 	return lpszDir;
+}
+
+void CFreedomRadioVS2019Dlg::OnBnClickedBtnLoadRadioChannelListFile()
+{
+	OpenChannelListFile();
 }

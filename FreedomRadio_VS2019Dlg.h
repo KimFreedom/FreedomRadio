@@ -67,4 +67,6 @@ public:
 	CEdit m_edtLog;
     afx_msg void OnNMDblclkLstRadioList(NMHDR* pNMHDR, LRESULT* pResult);
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
+	CButton m_btnLoadRadioChannelListFile;
+	afx_msg void OnBnClickedBtnLoadRadioChannelListFile();
 };

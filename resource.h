@@ -18,6 +18,7 @@
 #define IDC_CUSTOM_RADIO_CHANNEL_PANEL  1006
 #define IDC_STATIC_                     1007
 #define IDC_STATIC_RADIO_CHANNEL_PANEL  1007
+#define IDC_BTN_LOAD_RADIO_CHANNEL_LIST_FILE 1008
 #define ID_MAIN_OPENCHANNELLIST         32771
 #define ID_MAIN_EXIT                    32772
 
@@ -27,7 +28,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1008
+#define _APS_NEXT_CONTROL_VALUE         1009
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
