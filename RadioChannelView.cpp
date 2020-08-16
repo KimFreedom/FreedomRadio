@@ -28,36 +28,47 @@ ATOM RegisterClassRadioChannelView(HINSTANCE hInstance)
 
 DWORD WINAPI ThreadRadioTimer(LPVOID lpParam)
 {
-    TRACE("RadioThreadTimer Start!\n");
     CRadioChannelView* pView = (CRadioChannelView*)lpParam;
     LARGE_INTEGER liFreq, liLastUpdate, liCurrent;
     __int64 nUpdateTime = 0;
+    const __int64 UPDATE_PERIOD = (__int64)5;
+    pView->m_nThreadState = THREAD_STATE_RUNNING;
     QueryPerformanceFrequency(&liFreq);
     QueryPerformanceCounter(&liLastUpdate);
     // 첫 Timer는 반드시 실행하도록 마지막 Update 시간을 10초 전으로 설정
-    liLastUpdate.QuadPart -= liFreq.QuadPart * 10;
+    liLastUpdate.QuadPart -= liFreq.QuadPart * (UPDATE_PERIOD * 2);
+    pView->TraceLog(_T("RadioThreadTimer Start!\n"));
 
     while (pView->m_bActiveThread == TRUE)
     {
+        if (pView->GetRadioAvailable() == FALSE)
+        {
+            break;
+        }
+
         if (pView->m_bIsVisible == TRUE)
         {
             QueryPerformanceCounter(&liCurrent);
             nUpdateTime = (liCurrent.QuadPart - liLastUpdate.QuadPart) / liFreq.QuadPart;
-            if (nUpdateTime > 5)
+            if (nUpdateTime > UPDATE_PERIOD)
             {
                 pView->RefreshNowPlaying();
                 liLastUpdate = liCurrent;
             }
         }
 
-        Sleep(1000);
+        int nSleepCounter = 0;
+        while ((pView->m_bActiveThread == TRUE) && (nSleepCounter < 10))
+        {
+            WaitForSingleObject(pView->m_hRadioTimerThread, 100);
+            nSleepCounter++;
+        }
     }
 
     // Thread end
     pView->m_bActiveThread = FALSE;
-    CloseHandle(pView->m_hRadioTimerThread);
-    pView->m_hRadioTimerThread = NULL;
-    TRACE("RadioThreadTimer End!\n");
+    pView->m_nThreadState = THREAD_STATE_END;
+    pView->TraceLog(_T("RadioThreadTimer End!\n"));
     return 0;
 }
 
@@ -67,6 +78,7 @@ CRadioChannelView::CRadioChannelView()
     m_bIsVisible = FALSE;
     m_bActiveThread = FALSE;
     m_hRadioTimerThread = NULL;
+    m_nThreadState = THREAD_STATE_END;
 }
 
 
@@ -193,8 +205,11 @@ void CRadioChannelView::SetRadioInfo(std::wstring strName, std::wstring strURL)
     m_objRadioPlayer.SetRadioInfo(strName, strURL);
 
     DWORD dwThreadID = 0;
-    m_bActiveThread = true;
-    m_hRadioTimerThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadRadioTimer, this, NULL, &dwThreadID);
+    if (m_bActiveThread == FALSE)
+    {
+        m_bActiveThread = TRUE;
+        m_hRadioTimerThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadRadioTimer, this, NULL, &dwThreadID);
+    }
 }
 
 
@@ -234,10 +249,29 @@ void CRadioChannelView::StopRefreshing()
     if (m_bActiveThread == TRUE)
     {
         m_bActiveThread = FALSE;
-        WaitForSingleObject(m_hRadioTimerThread, 5000);
+        TraceLog(_T("CRadioChannelView::StopRefreshing Thread flag OFF!\n"));
+        if (m_nThreadState != THREAD_STATE_END)
+        {
+            DWORD dwResult = WaitForSingleObject(m_hRadioTimerThread, 5000);
+            /*if (dwResult == WAIT_OBJECT_0)
+            {
+                ;
+            }
+            else
+            {
+                TRACE(_T("CRadioChannelView::StopRefreshing WaitForSingleObject result %u\n"), dwResult);
+            }*/
+            TraceLog(_T("CRadioChannelView::StopRefreshing WaitForSingleObject result %u\n"), dwResult);
+        }
     }
 
     m_objRadioPlayer.StopRadio();
+}
+
+
+BOOL CRadioChannelView::GetRadioAvailable()
+{
+    return m_objRadioPlayer.m_bIsRadioAvailable;
 }
 
 
@@ -275,4 +309,21 @@ LRESULT CRadioChannelView::OnSendRadioNowPlaying(WPARAM wParam, LPARAM lParam)
 std::wstring CRadioChannelView::ConvertCStringToString(CString csValue)
 {
     return csValue.operator LPCWSTR();
+}
+
+
+void CRadioChannelView::TraceLog(TCHAR* szLog, ...)
+{
+    SYSTEMTIME currentTime;
+    CString strTime = _T("");
+    va_list ap;
+    TCHAR buf[1024];
+
+    GetLocalTime(&currentTime);
+    strTime.Format(_T("%04u-%02u-%02u_%02u:%02u:%02u.%03u"), currentTime.wYear, currentTime.wMonth, currentTime.wDay,
+        currentTime.wHour, currentTime.wMinute, currentTime.wSecond, currentTime.wMilliseconds);
+    va_start(ap, szLog);
+    _vstprintf_s(buf, szLog, ap);
+    va_end(ap);
+    TRACE(_T("[%s] <%s> %s"), strTime, m_csName, buf);
 }

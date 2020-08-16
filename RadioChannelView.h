@@ -17,8 +17,10 @@ public:
     void SetTitle(CString csValue);
     void RefreshNowPlaying();
     void StopRefreshing();
+    BOOL GetRadioAvailable();
 
     std::wstring ConvertCStringToString(CString csValue);
+    void TraceLog(TCHAR* szLog, ...);
 
     CFreedomRadioPlayer m_objRadioPlayer;
     CString m_csName;
@@ -26,6 +28,7 @@ public:
     BOOL    m_bIsVisible;
     BOOL    m_bActiveThread;
     HANDLE  m_hRadioTimerThread;
+    int     m_nThreadState;
 
     CFont m_fontKey, m_fontValue;
 

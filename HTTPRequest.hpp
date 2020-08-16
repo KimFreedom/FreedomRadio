@@ -168,6 +168,10 @@ namespace http
                 if (endpoint == invalid)
                     throw std::system_error(getLastError(), std::system_category(), "Failed to create socket");
 
+                // recv() time-out 설정
+                DWORD dwRecvTimeout = 1000;
+                setsockopt(endpoint, SOL_SOCKET, SO_RCVTIMEO, (char*)&dwRecvTimeout, sizeof(dwRecvTimeout));
+
 #if defined(__APPLE__)
                 const int value = 1;
                 if (setsockopt(endpoint, SOL_SOCKET, SO_NOSIGPIPE, &value, sizeof(value)) == -1)
@@ -197,8 +201,63 @@ namespace http
 
             void connect(const struct sockaddr* address, socklen_t addressSize)
             {
-                if (::connect(endpoint, address, addressSize) == -1)
-                    throw std::system_error(getLastError(), std::system_category(), "Failed to connect");
+                ////// Time-out 처리 추가
+                //if (::connect(endpoint, address, addressSize) == -1)
+                    //throw std::system_error(getLastError(), std::system_category(), "Failed to connect");
+
+                int nResult = 0;
+                int error = 0;
+                u_long nBlockingMode = 1;
+                fd_set rset, wset;
+                struct timeval tval;
+                
+                nResult = ioctlsocket(endpoint, FIONBIO, &nBlockingMode);
+                if (nResult != NO_ERROR)
+                {
+                    throw std::system_error(getLastError(), std::system_category(), "Failed to setting socket NON-BLOCKING mode");
+                }
+
+                nResult = ::connect(endpoint, address, addressSize);
+                if (nResult == 0)
+                {
+                    nBlockingMode = 0;
+                    ioctlsocket(endpoint, FIONBIO, &nBlockingMode);
+                    return;
+                }
+
+                FD_ZERO(&rset);
+                FD_SET(endpoint, &rset);
+                wset = rset;
+                tval.tv_sec = 1; // Time-out : 1 second
+                tval.tv_usec = 0;
+
+                nResult = ::select(endpoint + 1, &rset, &wset, NULL, &tval);
+                if (nResult == 0)
+                {
+                    errno = ETIMEDOUT;
+                    throw std::system_error(getLastError(), std::system_category(), "Socket Time-out");
+                }
+
+                if (FD_ISSET(endpoint, &rset) || FD_ISSET(endpoint, &wset))
+                {
+                    int nErrorSize = sizeof(int);
+                    nResult = ::getsockopt(endpoint, SOL_SOCKET, SO_ERROR, (char *)&error, &nErrorSize);
+                    if (nResult < 0)
+                    {
+                        throw std::system_error(getLastError(), std::system_category(), "getsockopt error");
+                    }
+                }
+                else
+                {
+                    throw std::system_error(getLastError(), std::system_category(), "Socket not set");
+                }
+
+                nBlockingMode = 0;
+                nResult = ioctlsocket(endpoint, FIONBIO, &nBlockingMode);
+                if (nResult != NO_ERROR)
+                {
+                    throw std::system_error(getLastError(), std::system_category(), "Failed to setting socket BLOCKING mode");
+                }
             }
 
             size_t send(const void* buffer, size_t length, int flags)
@@ -474,7 +533,14 @@ namespace http
             Socket socket(internetProtocol);
 
             // take the first address from the list
-            socket.connect(addressInfo->ai_addr, static_cast<socklen_t>(addressInfo->ai_addrlen));
+            try
+            {
+                socket.connect(addressInfo->ai_addr, static_cast<socklen_t>(addressInfo->ai_addrlen));
+            }
+            catch (const std::exception& e)
+            {
+                throw e;
+            }
 
             auto remaining = requestData.size();
             auto sendData = requestData.data();
@@ -645,7 +711,8 @@ namespace http
                         responseData.clear();
 
                         // got the whole content
-                        if (contentLengthReceived && response.body.size() >= contentLength)
+                        //if (contentLengthReceived && response.body.size() >= contentLength)
+                        if (response.body.size() >= contentLength)
                             break;
                     }
                 }

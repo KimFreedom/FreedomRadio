@@ -51,6 +51,9 @@
 
 #define SCROLL_WIDTH            50
 
+#define THREAD_STATE_END        0
+#define THREAD_STATE_RUNNING    1
+
 #define TIMER_RADIO_REFRESH     WM_USER + 1100
 
 

@@ -104,8 +104,6 @@ void CRadioChannelPanelWnd::RefreshChannelList(CChannelManager& objChannelManage
             m_vtChannelView[i]->m_bIsVisible = TRUE;
         }
     }
-
-    //SetTimer(TIMER_RADIO_REFRESH, 10000, NULL);
 }
 
 
@@ -124,10 +122,19 @@ void CRadioChannelPanelWnd::RefreshRadio()
 
 void CRadioChannelPanelWnd::ClearChannelView()
 {
-    for (int i = 0; i < m_vtChannelView.size(); i++)
+    int nChannelCount = m_vtChannelView.size();
+    if (nChannelCount <= 0)
+    {
+        return;
+    }
+    for (int i = nChannelCount - 1; i >= 0; i--)
     {
         m_vtChannelView[i]->StopRefreshing();
-        //m_vtChannelView[i]->DestroyWindow();
+    }
+    for (int i = nChannelCount - 1; i >= 0; i--)
+    {
+        m_vtChannelView[i]->DestroyWindow();
+        delete m_vtChannelView[i];
     }
     m_vtChannelView.clear();
 }

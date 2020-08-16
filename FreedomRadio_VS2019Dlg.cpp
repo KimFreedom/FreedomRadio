@@ -401,20 +401,6 @@ void CFreedomRadioVS2019Dlg::OpenChannelList(CString strPathChannelList)
 
 void CFreedomRadioVS2019Dlg::RefreshRadioList()
 {
-	/*
-	m_lstRadioList.DeleteAllItems();
-
-	int nCountChannel = m_objChannelManager.CountChannelInfo();
-	for (int iChannel = 0; iChannel < nCountChannel; iChannel++)
-	{
-		CRadioChannel *pChannel = m_objChannelManager.GetChannelInfo(iChannel);
-		CString csName(pChannel->GetName().c_str());
-		CString csURL(pChannel->GetURL().c_str());
-		m_lstRadioList.InsertItem(iChannel, csName);
-		m_lstRadioList.SetItemText(iChannel, 1, csURL);
-	}
-	*/
-
 	m_wndRadioChannelPanel.RefreshChannelList(m_objChannelManager);
 }
 

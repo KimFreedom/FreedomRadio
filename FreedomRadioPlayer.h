@@ -25,11 +25,14 @@ public:
     void InitRadioInfo();
     void PlayRadio();
     void StopRadio();
-    bool IsNewSong(std::wstring strSongTitle);
+    BOOL IsNewSong(std::wstring strSongTitle);
+    void TraceLog(const TCHAR* szLog, ...);
 
-    bool   m_bIsPlayingRadio;
+    BOOL   m_bIsPlayingRadio;
     HANDLE m_hRadioThread;
     HWND   m_hParentHandle;
+    int    m_nThreadState;
+    BOOL   m_bIsRadioAvailable;
 
 private:
     std::wstring m_strName;
